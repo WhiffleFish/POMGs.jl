@@ -69,4 +69,10 @@ If it is difficult to define the probability density or mass function explicitly
 """
 function initialstate end
 
+function players end
+
+function actions end
+
+function gen end
+
 @inline other_player(i) = 3-i

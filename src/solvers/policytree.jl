@@ -4,7 +4,7 @@ struct PolicyNode{T}
     s::Vector{T}
 end
 
-function PolicyNode{T}(l)
+function PolicyNode{T}(l) where T
     return PolicyNode(
             fill(T(inv(l)), l), 
             zeros(T, l), 
@@ -21,9 +21,29 @@ struct PolicyTree{T,A,O}
     children::Dict{Tuple{Int,A,O}, Int} # τ(bao)
 end
 
+function PolicyTree{T}(game::POMG{S,Tuple{A1,A2},O}, p::Number) where {T,S,A1,A2,O}
+    A = isone(p) ? A1 : A2
+    s0 = initialstate(game)
+    act = actions(game, s0, p)
+
+
+    return PolicyTree(
+            PolicyNode{T}[PolicyNode{T}(length(act))],
+            Dict{Tuple{Int,A,O}, Int}()
+    )
+end
+
+Base.length(tree::PolicyTree) = length(tree.nodes)
+
+"""
+b' = τ(bao)
+where b' is the index/id of the new belief node in the policy tree
+"""
 function τ(tree::PolicyTree{T}, b_idx, a, o, l) where T
     get!(tree.children, (b_idx, a, o)) do
-        PolicyNode{T}(l)
+        
+        push!(tree.nodes, PolicyNode{T}(l))
+        length(tree.nodes)
     end
 end
 
@@ -35,7 +55,7 @@ function τ(trees::Tuple, b_idxs::Tuple, as::Tuple, os::Tuple, Ls::Tuple)
 end
 
 function strategies(trees::Tuple, idxs)
-    return Tuple(tree.nodes[idxs[i]] for i in eachindex(trees, idxs))
+    return Tuple(trees[i].nodes[idxs[i]].σ for i in eachindex(trees, idxs))
 end
 
 function joint_action_prob(strats, idxs)
