@@ -30,7 +30,6 @@ function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0)
         return 0.0
     else
         A1, A2 = actions(game, s)
-        L1, L2 = length(A1), length(A2)
         σs = strategies(sol.trees, node_idxs)
         
         v_σ = 0.0
@@ -45,14 +44,14 @@ function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0)
                 r = reward(game, s, (a1, a2), sp)
                 o1,o2 = observation(game, s, (a1,a2), sp)
                 next_nodes = isterminal(game, sp) ? node_idxs : τ(sol.trees, node_idxs, (a1,a2), (o1,o2), actions(game, sp))
-                val = r[p] + γ*traverse(sol, sp, p, next_nodes, π_i*σ_p, π_ni*σ_np*trans_prob)
+                val::Float64 = r[p] + γ*traverse(sol, sp, p, next_nodes, π_i*σ_p, π_ni*σ_np*trans_prob)
                 v_σ_Ia[a_tup[p]] += σ_np*trans_prob*val
                 v_σ += σ_np*σ_p*trans_prob*val
             end
         end
 
         sol.trees[p].nodes[node_idxs[p]].r .+= π_ni .* (v_σ_Ia .- v_σ)
-        return v_σ
+        return v_σ::Float64
     end
 end
 

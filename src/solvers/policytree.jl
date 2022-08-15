@@ -46,15 +46,15 @@ function τ(tree::PolicyTree{T}, b_idx, a, o, l) where T
     end
 end
 
-function τ(trees::Tuple, b_idxs::Tuple, as::Tuple, os::Tuple, As::Tuple)
-    return Tuple(
+function τ(trees::Tuple, b_idxs::NTuple{N,Int}, as::Tuple, os::Tuple, As::Tuple) where N
+    return NTuple{N,Int}(
         τ(trees[i], b_idxs[i], as[i], os[i], length(As[i])) 
         for i ∈ eachindex(trees)
     )
 end
 
-function strategies(trees::Tuple, idxs)
-    return Tuple(trees[i].nodes[idxs[i]].σ for i in eachindex(trees, idxs))
+function strategies(trees::Tuple, idxs::NTuple{N,Int}) where N
+    return NTuple{N,Vector{Float64}}(trees[i].nodes[idxs[i]].σ for i in eachindex(trees, idxs))
 end
 
 function joint_action_prob(strats, idxs)
