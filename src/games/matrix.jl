@@ -16,6 +16,8 @@ POMGs.isterminal(::MatrixGame, s) = s
 
 POMGs.discount(::MatrixGame) = 1.0
 
+POMGs.actions(g::MatrixGame{N}, s) where N = Tuple(axes(g.R, i) for i in 1:N)
+
 POMGs.actions(g::MatrixGame, s, i) = axes(g.R, i)
 
 POMGs.observation(g::MatrixGame{N}, s, a, sp) where N = Iterators.repeated(nothing, N)

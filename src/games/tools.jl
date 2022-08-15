@@ -2,15 +2,25 @@ struct Deterministic{T}
     val::T
 end
 
-Base.rand(rng::AbstractRNG, d::Deterministic) = d.val
+Base.rand(::AbstractRNG, d::Deterministic) = d.val
 
-function Base.iterate(d::Deterministic, state::Int=0)
-    return (d.val, 1.0), nothing
+Base.iterate(d::Deterministic, ::Int=0) = (d.val, 1.0), nothing
+
+Base.iterate(::Deterministic, ::Nothing) = nothing
+
+
+struct Uniform{T}
+    vals::Vector{T}
 end
 
-function Base.iterate(d::Deterministic, state::Nothing)
-    return nothing
+Base.rand(rng::AbstractRNG, d::Uniform) = rand(rng, d.vals)
+
+function Base.iterate(d::Uniform, state::Tuple=1)
+    state > length(d.vals) && return nothing 
+    val = d.vals[state]
+    return (val=>inv(length(d.vals))), state+1
 end
+
 
 struct Categorical{T}
     vals::Vector{T}
@@ -34,3 +44,5 @@ function Base.iterate(d::Categorical, dstate::Tuple)
     prob, pstate_next = pnext
     return ((val=>prob), (vstate_next, pstate_next))
 end
+
+# TODO: implement Base.rand(::Categorical)

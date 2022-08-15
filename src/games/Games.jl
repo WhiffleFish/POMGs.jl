@@ -10,4 +10,7 @@ include("tools.jl")
 include("matrix.jl")
 export MatrixGame
 
+include("kuhn.jl")
+export Kuhn
+
 end

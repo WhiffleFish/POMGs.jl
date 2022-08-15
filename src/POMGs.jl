@@ -1,15 +1,15 @@
 module POMGs
+# Maybe change to POSGs.jl ???
 
 using ProgressMeter
 using Random
 
 include("pomg.jl")
 
-export POMG
-export initialstate
-
 include(joinpath("games", "games.jl"))
 
 include(joinpath("solvers", "solvers.jl"))
+
+include(joinpath("evaluation", "evaluation.jl"))
 
 end # module

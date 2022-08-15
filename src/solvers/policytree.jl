@@ -8,7 +8,7 @@ function PolicyNode{T}(l) where T
     return PolicyNode(
             fill(T(inv(l)), l), 
             zeros(T, l), 
-            zeros(T, l)
+            fill(T(inv(l)), l)
     )
 end
 
@@ -41,15 +41,14 @@ where b' is the index/id of the new belief node in the policy tree
 """
 function τ(tree::PolicyTree{T}, b_idx, a, o, l) where T
     get!(tree.children, (b_idx, a, o)) do
-        
         push!(tree.nodes, PolicyNode{T}(l))
         length(tree.nodes)
     end
 end
 
-function τ(trees::Tuple, b_idxs::Tuple, as::Tuple, os::Tuple, Ls::Tuple)
+function τ(trees::Tuple, b_idxs::Tuple, as::Tuple, os::Tuple, As::Tuple)
     return Tuple(
-        τ(trees[i], b_idxs[i], as[i], os[i], Ls[i]) 
+        τ(trees[i], b_idxs[i], as[i], os[i], length(As[i])) 
         for i ∈ eachindex(trees)
     )
 end
@@ -66,7 +65,17 @@ function joint_action_prob(strats, idxs)
     return p
 end
 
-regret_match!(n::PolicyNode) = n.σ .= n.r ./ sum(n.r)
+function regret_match!(n::PolicyNode)
+    (;σ, r) = n
+    s = zero(eltype(r))
+    @inbounds for i in eachindex(σ,r)
+        if r[i] > zero(eltype(r))
+            s += r[i]
+            σ[i] = r[i]
+        end
+    end
+    s > zero(eltype(r)) ? (σ ./= s) : fill!(σ,inv(length(σ)))
+end
 
 function regret_match!(tree::PolicyTree)
     for node ∈ tree.nodes
@@ -79,5 +88,24 @@ function regret_match!(trees::Tuple)
     for tree ∈ trees
         regret_match!(tree)
     end
-    tup
+    trees
+end
+
+function update_strategy!(n::PolicyNode)
+    regret_match!(n)
+    n.s .+= n.σ
+end
+
+function update_strategy!(tree::PolicyTree)
+    for node ∈ tree.nodes
+        update_strategy!(node)
+    end
+    tree
+end
+
+function update_strategy!(trees::Tuple)
+    for tree ∈ trees
+        update_strategy!(nodetree)
+    end
+    trees
 end
