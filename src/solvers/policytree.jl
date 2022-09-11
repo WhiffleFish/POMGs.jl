@@ -105,7 +105,7 @@ end
 
 function update_strategy!(trees::Tuple)
     for tree ∈ trees
-        update_strategy!(nodetree)
+        update_strategy!(tree)
     end
     trees
 end
