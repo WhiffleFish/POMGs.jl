@@ -31,9 +31,10 @@ function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0)
     else
         A1, A2 = actions(game, s)
         σs = strategies(sol.trees, node_idxs)
-        
+
         v_σ = 0.0
-        v_σ_Ia = zero(σs[p])
+        player_node = sol.trees[p].nodes[node_idxs[p]]
+        v_σ_Ia = zero!(player_node._tmp) # zero(σs[p])
         for a1_idx ∈ eachindex(A1), a2_idx ∈ eachindex(A2)
             a_tup = (a1_idx, a2_idx)
             a1,a2 = A1[a1_idx], A2[a2_idx]
