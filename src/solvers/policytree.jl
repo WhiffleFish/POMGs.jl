@@ -2,13 +2,15 @@ struct PolicyNode{T}
     σ::Vector{T}
     r::Vector{T}
     s::Vector{T}
+    _σ_tmp::Vector{T}
 end
 
 function PolicyNode{T}(l) where T
     return PolicyNode(
             fill(T(inv(l)), l), 
             zeros(T, l), 
-            fill(T(inv(l)), l)
+            fill(T(inv(l)), l),
+            zeros(T, l)
     )
 end
 

@@ -17,7 +17,7 @@ end
 
 KuhnState(cards::SVector{2,Int}) = KuhnState(cards, @SVector(fill(NULL,3)))
 
-function Base.length(s::KuhnState)
+function Base.length(s::KuhnState) # TODO: StaticPushVector
     l = 0
     for a in s.action_hist
         a === NULL && break
