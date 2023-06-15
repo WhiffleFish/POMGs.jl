@@ -16,11 +16,11 @@ POMGs.isterminal(::MatrixGame, s) = s
 
 POMGs.discount(::MatrixGame) = 1.0
 
-POMGs.actions(g::MatrixGame{N}, s) where N = Tuple(axes(g.R, i) for i in 1:N)
+POMGs.actions(g::MatrixGame, s) = axes(g.R)
 
 POMGs.actions(g::MatrixGame, s, i) = axes(g.R, i)
 
-POMGs.observation(g::MatrixGame{N}, s, a, sp) where N = Iterators.repeated(nothing, N)
+POMGs.observation(g::MatrixGame{N}, s, a, sp) where N = NTuple{N, Nothing}(nothing for _ in 1:N)
 
 POMGs.reward(g::MatrixGame, s, a, sp) = g.R[a...]
 
@@ -29,5 +29,5 @@ function POMGs.transition(g::MatrixGame, s, a)
 end
 
 function POMGs.gen(g::MatrixGame{N}, s, a, rng) where N
-    return (sp=true, o=Iterators.repeated(nothing, N), r=g.R[a...])
+    return (sp=true, o=NTuple{N, Nothing}(nothing for _ in 1:N), r=g.R[a...])
 end

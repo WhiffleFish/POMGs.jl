@@ -2,17 +2,19 @@ struct PolicyNode{T}
     σ::Vector{T}
     r::Vector{T}
     s::Vector{T}
-    _σ_tmp::Vector{T}
+    _tmp::Vector{T}
 end
 
 function PolicyNode{T}(l) where T
     return PolicyNode(
-            fill(T(inv(l)), l), 
-            zeros(T, l), 
             fill(T(inv(l)), l),
-            zeros(T, l)
+            zeros(T, l),
+            fill(T(inv(l)), l),
+            Vector{T}(undef, l)
     )
 end
+
+zero!(v::AbstractVector{T}) where T = fill!(v, zero(T))
 
 regret(n::PolicyNode) = n.r
 strategy_sum(n::PolicyNode) = n.s
@@ -50,7 +52,7 @@ end
 
 function τ(trees::Tuple, b_idxs::NTuple{N,Int}, as::Tuple, os::Tuple, As::Tuple) where N
     return NTuple{N,Int}(
-        τ(trees[i], b_idxs[i], as[i], os[i], length(As[i])) 
+        τ(trees[i], b_idxs[i], as[i], os[i], length(As[i]))
         for i ∈ eachindex(trees)
     )
 end

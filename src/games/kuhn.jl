@@ -28,11 +28,11 @@ end
 
 """
 Kuhn Poker
-"Kuhn poker is an extremely simplified form of poker developed by Harold W. Kuhn as a 
-simple model zero-sum two-player imperfect-information game, amenable to a complete 
-game-theoretic analysis. In Kuhn poker, the deck includes only three playing cards, 
-for example a King, Queen, and Jack. One card is dealt to each player, which may place 
-bets similarly to a standard poker. If both players bet or both players pass, the player 
+"Kuhn poker is an extremely simplified form of poker developed by Harold W. Kuhn as a
+simple model zero-sum two-player imperfect-information game, amenable to a complete
+game-theoretic analysis. In Kuhn poker, the deck includes only three playing cards,
+for example a King, Queen, and Jack. One card is dealt to each player, which may place
+bets similarly to a standard poker. If both players bet or both players pass, the player
 with the higher card wins, otherwise, the betting player wins."
 - https://en.wikipedia.org/wiki/Kuhn_poker
 """
@@ -42,20 +42,14 @@ struct Kuhn <: POMG{KuhnState, Tuple{Int,Int}, Int}
         chance_states = [KuhnState(SVector(i,j)) for i in 1:3, j in 1:3 if i != j]
         return new(
             Categorical(
-                chance_states, 
+                chance_states,
                 fill(inv(length(chance_states)), length(chance_states))
             )
         )
     end
 end
 
-function player(::Kuhn, s)
-    return if any(iszero, s.cards)
-        0     
-    else
-        mod(length(s),2) + 1 
-    end
-end
+player(::Kuhn, s) = any(iszero, s.cards) ? 0 : mod(length(s),2) + 1
 
 POMGs.initialstate(::Kuhn) = KuhnState(SA[0,0], @SVector(fill(NULL,3)))
 
@@ -70,7 +64,7 @@ function POMGs.isterminal(::Kuhn, s::KuhnState)
 end
 
 function POMGs.reward(::Kuhn, s::KuhnState, a, sp::KuhnState)
-    as = s.action_hist
+    as = sp.action_hist
     cards = s.cards
 
     modifier = cards[1] > cards[2] ? 1 : -1
@@ -112,7 +106,7 @@ function POMGs.transition(g::Kuhn, s::KuhnState, a) # not type stable... Union{C
     end
 end
 
-function POMGs.observation(game::Kuhn, s::KuhnState, a::Tuple, sp::KuhnState) 
+function POMGs.observation(game::Kuhn, s::KuhnState, a::Tuple, sp::KuhnState)
     p = player(game, s)
     return if iszero(p)
         (sp.cards[1], sp.cards[2]) # not type stable...
