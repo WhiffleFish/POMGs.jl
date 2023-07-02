@@ -61,6 +61,10 @@ function strategies(trees::Tuple, idxs::NTuple{N,Int}) where N
     return NTuple{N,Vector{Float64}}(trees[i].nodes[idxs[i]].σ for i in eachindex(trees, idxs))
 end
 
+function nodes(trees::Tuple, idxs::Tuple{Int,Int})
+    return trees[1].nodes[idxs[1]], trees[2].nodes[idxs[2]]
+end
+
 function joint_action_prob(strats, idxs)
     p = 1.0
     for i ∈ eachindex(strats, idxs)
