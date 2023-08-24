@@ -6,8 +6,10 @@ export
     reward, 
     isterminal, 
     initialstate, 
-    players, 
+    players,
+    states,
     actions, 
+    observations,
     gen
 
 """
@@ -59,6 +61,13 @@ function players end
 players(::POMG) = 1:2
 
 """
+    states(game)
+
+Returns the state space of a given game
+"""
+function states end
+
+"""
     actions(game)
 
 Returns the action space for each player (A1, A2)
@@ -90,6 +99,13 @@ function player_actions end
 player_actions(game, p) = actions(game)[p]
 
 player_actions(game, s, p) = actions(game, s)[p]
+
+"""
+    observations(game)
+
+Returns the state space of a given game
+"""
+function states end
 
 function gen end
 
