@@ -1,12 +1,11 @@
-struct CFRSolver{G <: POMG, T, RNG<:AbstractRNG}
+struct CFRSolver{G <: POMG, T}
     game::G
     trees::T
-    rng::RNG
 end
 
 function CFRSolver(game::POMG; precision=Float64, rng=Random.default_rng())
     trees = Tuple(PolicyTree{precision}(game, i) for i ∈ 1:2)
-    return CFRSolver(game, trees, rng)
+    return CFRSolver(game, trees)
 end
 
 function train!(sol::CFRSolver, n; progress=true)
