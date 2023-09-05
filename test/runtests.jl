@@ -2,6 +2,20 @@ using POMGs
 using POMGs.Games
 using Test
 
+@testset "generative" begin
+    game = MatrixGame()
+    s = initialstate(game) # should be a distribution >:(
+    a1 = first(player_actions(game, 1, s))
+    a2 = last(player_actions(game, 2, s))
+    a = (a1, a2)
+
+    sp, (o1,o2), (r1, r2) = @gen(:sp, :o, :r)(game, s, a)
+    @test sp isa Bool
+    @test o1 == o2 == nothing
+    @test r1 == -r2
+    @test isterminal(game, sp)
+end
+
 @testset "smoke" begin
     atol = 1e-2
     game = MatrixGame()
