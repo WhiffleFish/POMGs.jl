@@ -40,6 +40,18 @@ observation(problem::POMG, a, sp) = observation(problem, sp)
 
 observation(problem::POMG, s, a, sp) = observation(problem, a, sp)
 
+"""
+    player_observation(m::POMG, i::Int, a, sp)
+
+Return observation distribution for player `i`
+
+"""
+function player_observation end
+
+player_observation(m::POMG, i::Int, s, a, sp) = player_observation(m, i, a, sp)
+player_observation(m::POMG, i::Int, a, sp) = player_observation(m, i, sp)
+
+
 function reward end
 
 """
@@ -101,11 +113,29 @@ player_actions(game, p) = actions(game)[p]
 player_actions(game, s, p) = actions(game, s)[p]
 
 """
-    observations(game)
+    states(game)
 
 Returns the state space of a given game
 """
 function states end
+
+"""
+    (O1, O2) = observations(game)
+
+Returns the observation space of a given game for both players
+"""
+function observations end
+
+observations(p::POMG, s) = observations(p)
+
+"""
+    Oi = player_observations(game::POMG, i::Int)
+
+Returns the observation space of a given game for player `i`
+"""
+function player_observations end
+
+player_observations(p::POMG, i::Int, s) = player_observations(p, i)
 
 function gen end
 
