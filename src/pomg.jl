@@ -8,9 +8,13 @@ export
     initialstate, 
     players,
     states,
-    actions, 
+    actions,
+    player_actions, 
     observations,
+    player_observations,
+    @gen,
     gen
+    
 
 """
     POMG{S,A,O}
@@ -73,13 +77,6 @@ function players end
 players(::POMG) = 1:2
 
 """
-    states(game)
-
-Returns the state space of a given game
-"""
-function states end
-
-"""
     actions(game)
 
 Returns the action space for each player (A1, A2)
@@ -108,9 +105,9 @@ Returns the actions that can be taken by player `p` at state `s`
 """
 function player_actions end
 
-player_actions(game, p) = actions(game)[p]
+player_actions(game, i) = actions(game)[i]
 
-player_actions(game, s, p) = actions(game, s)[p]
+player_actions(game, i, s) = actions(game, s)[i]
 
 """
     states(game)

@@ -3,8 +3,13 @@ module POMGs
 
 using ProgressMeter
 using Random
+import POMDPs
 
 include("pomg.jl")
+
+include("gen.jl")
+
+include("gen_impl.jl")
 
 include(joinpath("games", "games.jl"))
 
