@@ -1,6 +1,7 @@
 module Games
 
 using ..POMGs
+using POMDPTools.POMDPDistributions
 using StaticArrays
 using Base.Iterators
 using Random

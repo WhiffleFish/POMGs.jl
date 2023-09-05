@@ -4,6 +4,7 @@ module POMGs
 using ProgressMeter
 using Random
 import POMDPs
+using POMDPTools.POMDPDistributions
 
 include("pomg.jl")
 

@@ -37,15 +37,10 @@ with the higher card wins, otherwise, the betting player wins."
 - https://en.wikipedia.org/wiki/Kuhn_poker
 """
 struct Kuhn <: POMG{KuhnState, Tuple{Int,Int}, Int}
-    chance_states::Categorical{KuhnState}
+    chance_states::Uniform{Set{KuhnState}}
     function Kuhn()
-        chance_states = [KuhnState(SVector(i,j)) for i in 1:3, j in 1:3 if i != j]
-        return new(
-            Categorical(
-                chance_states,
-                fill(inv(length(chance_states)), length(chance_states))
-            )
-        )
+        chance_states = Set(KuhnState(SVector(i,j)) for i in 1:3, j in 1:3 if i != j)
+        return new(Uniform(chance_states))
     end
 end
 

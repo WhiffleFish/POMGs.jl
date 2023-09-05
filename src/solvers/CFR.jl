@@ -39,7 +39,7 @@ function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0)
             σ_p = σs[p][a_tup[p]]
             σ_np = σs[other_player(p)][a_tup[other_player(p)]]
 
-            for (sp, trans_prob) in transition(game, s, (a1, a2))
+            for (sp, trans_prob) in weighted_iterator(transition(game, s, (a1, a2)))
                 r = reward(game, s, (a1, a2), sp)
                 o1,o2 = observation(game, s, (a1,a2), sp)
                 next_nodes = isterminal(game, sp) ? node_idxs : τ(sol.trees, node_idxs, (a1,a2), (o1,o2), actions(game, sp))
