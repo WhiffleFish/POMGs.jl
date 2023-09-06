@@ -19,7 +19,9 @@ struct DiscretePOMGBelief{P<:POMG, S}
     b::Vector{Float64}
 end
 
-function DiscretePOMGBelief(game, b::Vector{Float64}; check::Bool=true)
+BeliefUpdaters.DiscreteBelief(game::POMG, b::Vector{Float64}; check::Bool=true) = DiscretePOMGBelief(game, b; check)
+
+function DiscretePOMGBelief(game::POMG, b::Vector{Float64}; check::Bool=true)
     if check
         if !isapprox(sum(b), 1.0, atol=0.001)
             @warn("""
@@ -62,7 +64,7 @@ Base.fill!(b::DiscretePOMGBelief, x::Float64) = fill!(b.b, x)
 
 Base.length(b::DiscretePOMGBelief) = length(b.b)
 
-support(b::DiscretePOMGBelief) = b.state_list
+Distributions.support(b::DiscretePOMGBelief) = b.state_list
 
 Statistics.mean(b::DiscretePOMGBelief) = sum(b.state_list .* b.b)/sum(b.b)
 StatsBase.mode(b::DiscretePOMGBelief) = b.state_list[argmax(b.b)]
@@ -85,6 +87,8 @@ An updater type to update discrete belief using the discrete Bayesian filter.
 struct DiscretePOMGUpdater{P<:POMG} <: POMDPs.Updater
     game::P
 end
+
+BeliefUpdaters.DiscreteUpdater(game::POMG) = DiscretePOMGUpdater(game)
 
 BeliefUpdaters.uniform_belief(up::DiscretePOMGUpdater) = uniform_belief(up.game)
 
@@ -128,8 +132,6 @@ function POMDPs.update(bu::DiscretePOMGUpdater, b::DiscretePOMGBelief, a, o)
               b = $b
               a = $a
               o = $o
-
-              Failed discrete belief update: new probabilities sum to zero.
               """)
     end
 

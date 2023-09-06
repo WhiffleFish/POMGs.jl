@@ -10,5 +10,9 @@ using StatsBase
 import POMDPs
 
 include("discrete.jl")
+export DiscretePOMGUpdater, DiscretePOMGBelief
+
+include("singleton.jl")
+export SingletonUpdater
 
 end
