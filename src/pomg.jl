@@ -105,9 +105,9 @@ Returns the actions that can be taken by player `p` at state `s`
 """
 function player_actions end
 
-player_actions(game, i) = actions(game)[i]
+player_actions(game::POMG, i) = actions(game)[i]
 
-player_actions(game, i, s) = actions(game, s)[i]
+player_actions(game::POMG, i, s) = actions(game, s)[i]
 
 """
     states(game)
