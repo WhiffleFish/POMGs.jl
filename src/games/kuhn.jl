@@ -104,9 +104,9 @@ end
 function POMGs.observation(game::Kuhn, s::KuhnState, a::Tuple, sp::KuhnState)
     p = player(game, s)
     return if iszero(p)
-        (sp.cards[1], sp.cards[2]) # not type stable...
+        Deterministic((sp.cards[1], sp.cards[2])) # not type stable...
     else
-        (a[p], a[p])
+        Deterministic((a[p], a[p]))
     end
 end
 

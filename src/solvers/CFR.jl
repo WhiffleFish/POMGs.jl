@@ -20,14 +20,14 @@ function train!(sol::CFRSolver, n; progress=true)
     end
 end
 
-function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0)
+function traverse(sol::CFRSolver, b, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0)
     game = sol.game
     γ = discount(game)
 
-    if isterminal(game, s)
+    if isterminal(game, b)
         return 0.0
     else
-        A1, A2 = actions(game, s)
+        A1, A2 = actions(game, b)
         σs = strategies(sol.trees, node_idxs)
 
         v_σ = 0.0
@@ -38,14 +38,14 @@ function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0)
             a1,a2 = A1[a1_idx], A2[a2_idx]
             σ_p = σs[p][a_tup[p]]
             σ_np = σs[other_player(p)][a_tup[other_player(p)]]
+            r = reward(game, b, (a1, a2))
 
-            for (sp, trans_prob) in weighted_iterator(transition(game, s, (a1, a2)))
-                r = reward(game, s, (a1, a2), sp)
-                o1,o2 = observation(game, s, (a1,a2), sp)
-                next_nodes = isterminal(game, sp) ? node_idxs : τ(sol.trees, node_idxs, (a1,a2), (o1,o2), actions(game, sp))
-                val = r[p] + γ*traverse(sol, sp, p, next_nodes, π_i*σ_p, π_ni*σ_np*trans_prob)
-                v_σ_Ia[a_tup[p]] += σ_np*trans_prob*val
-                v_σ += σ_np*σ_p*trans_prob*val
+            for ((o1, o2), po) ∈ weighted_iterator(observation(game, h, (a1,a2), hp))
+                bp = update(b, (a1, a2), (o1, o2))
+                next_nodes = isterminal(game, bp) ? node_idxs : τ(sol.trees, node_idxs, (a1,a2), (o1,o2), actions(game, bp))
+                val = r[p] + γ*traverse(sol, bp, p, next_nodes, π_i*σ_p, po*π_ni*σ_np*trans_prob)
+                v_σ_Ia[a_tup[p]] += po*σ_np*trans_prob*val
+                v_σ += po*σ_np*σ_p*trans_prob*val
             end
         end
 

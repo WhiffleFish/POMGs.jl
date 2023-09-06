@@ -8,7 +8,7 @@ MatrixGame() = MatrixGame([
     (-1,1) (1,-1) (0,0)
 ])
 
-POMGs.initialstate(::MatrixGame) = false
+POMGs.initialstate(::MatrixGame) = Deterministic(false)
 
 POMGs.players(::MatrixGame{N}) where N = 1:N
 
@@ -20,13 +20,11 @@ POMGs.actions(g::MatrixGame, s) = axes(g.R)
 
 POMGs.actions(g::MatrixGame, s, i) = axes(g.R, i)
 
-POMGs.observation(g::MatrixGame{N}, s, a, sp) where N = NTuple{N, Nothing}(nothing for _ in 1:N)
+POMGs.observation(::MatrixGame{N}, s, a, sp) where N = Deterministic(NTuple{N, Nothing}(nothing for _ in 1:N))
 
 POMGs.reward(g::MatrixGame, s, a, sp) = g.R[a...]
 
-function POMGs.transition(g::MatrixGame, s, a)
-    return Deterministic(true)
-end
+POMGs.transition(::MatrixGame, s, a) = Deterministic(true)
 
 function POMGs.gen(g::MatrixGame{N}, s, a, rng) where N
     return (sp=true, o=NTuple{N, Nothing}(nothing for _ in 1:N), r=g.R[a...])

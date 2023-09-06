@@ -6,8 +6,6 @@ using StaticArrays
 using Base.Iterators
 using Random
 
-include("distributions.jl")
-
 include("matrix.jl")
 export MatrixGame
 
