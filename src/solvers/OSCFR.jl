@@ -22,7 +22,7 @@ function train!(sol::ESCFRSolver, n; progress=true)
     end
 end
 
-function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0, q_h=1.0)
+function traverse(sol::CFRSolver, s, p, node_idxs::Tuple, π_i=1.0, π_ni=1.0, q_h=1.0) # FIXME: very broken
     (;game,ϵ) = sol
     γ = discount(game)
 

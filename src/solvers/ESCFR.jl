@@ -36,7 +36,7 @@ function train!(sol::ESCFRSolver, n; progress=true)
     end
 end
 
-function traverse(sol::CFRSolver, s, p, node_idxs::Tuple)
+function traverse(sol::CFRSolver, s, p, node_idxs::Tuple) # FIXME: very broken
     game = sol.game
     γ = discount(game)
 

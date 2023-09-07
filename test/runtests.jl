@@ -1,10 +1,13 @@
 using POMGs
 using POMGs.Games
+using POMDPTools.POMDPDistributions
 using Test
 
 @testset "generative" begin
     game = MatrixGame()
-    s = initialstate(game) # should be a distribution >:(
+    b = initialstate(game)
+    @test b isa Deterministic
+    s = b.val
     a1 = first(player_actions(game, 1, s))
     a2 = last(player_actions(game, 2, s))
     a = (a1, a2)
