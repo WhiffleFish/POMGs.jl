@@ -19,6 +19,13 @@ struct DiscretePOMGBelief{P<:POMG, S}
     b::Vector{Float64}
 end
 
+function POMGs.isterminal_belief(game::POMG, b::DiscretePOMGBelief)
+    for (s,p) ∈ zip(b.state_list, b.b)
+        isterminal(game, s) && !iszero(p) && return true
+    end
+    return false
+end
+
 BeliefUpdaters.DiscreteBelief(game::POMG, b::Vector{Float64}; check::Bool=true) = DiscretePOMGBelief(game, b; check)
 
 function DiscretePOMGBelief(game::POMG, b::Vector{Float64}; check::Bool=true)
