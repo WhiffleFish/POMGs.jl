@@ -6,6 +6,7 @@ using Random
 import POMDPs
 using POMDPTools.POMDPDistributions
 using POMDPTools.BeliefUpdaters
+using Reexport
 
 include("distributions.jl")
 export ProductDistribution
@@ -17,6 +18,7 @@ include("gen.jl")
 include("gen_impl.jl")
 
 include(joinpath("BeliefUpdaters", "BeliefUpdaters.jl"))
+@reexport using .BeliefUpdaters
 
 include(joinpath("games", "games.jl"))
 

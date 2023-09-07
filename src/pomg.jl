@@ -13,7 +13,9 @@ export
     observations,
     player_observations,
     @gen,
-    gen
+    gen,
+    belief_reward,
+    isterminal_belief
     
 
 """
@@ -137,3 +139,13 @@ player_observations(p::POMG, i::Int, s) = player_observations(p, i)
 function gen end
 
 @inline other_player(i) = 3-i
+
+"""
+    belief_reward(game::POMG, b, a)
+"""
+function belief_reward end
+
+"""
+    isterminal_belief(game::POMG, b)
+"""
+function isterminal_belief end
