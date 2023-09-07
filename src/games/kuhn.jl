@@ -44,6 +44,8 @@ struct Kuhn <: POMG{KuhnState, Tuple{Int,Int}, Int}
     end
 end
 
+POMDPs.updater(game::Kuhn) = SingletonUpdater(game)
+
 player(::Kuhn, s) = any(iszero, s.cards) ? 0 : mod(length(s),2) + 1
 
 POMGs.initialstate(::Kuhn) = KuhnState(SA[0,0], @SVector(fill(NULL,3)))
