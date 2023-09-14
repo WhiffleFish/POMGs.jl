@@ -7,6 +7,7 @@ import POMDPs
 using POMDPTools.POMDPDistributions
 using POMDPTools.BeliefUpdaters
 using Reexport
+using SparseArrays
 
 include("distributions.jl")
 export ProductDistribution

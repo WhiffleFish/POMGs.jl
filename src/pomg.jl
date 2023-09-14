@@ -15,7 +15,10 @@ export
     @gen,
     gen,
     belief_reward,
-    isterminal_belief
+    isterminal_belief,
+    statetype,
+    actiontype,
+    obstype
     
 
 """
@@ -149,3 +152,7 @@ function belief_reward end
     isterminal_belief(game::POMG, b)
 """
 function isterminal_belief end
+
+statetype(::POMG{S}) where S = S
+actiontype(::POMG{S,A}) where {S,A} = A
+obstype(::POMG{S,A,O}) where {S,A,O} = O
