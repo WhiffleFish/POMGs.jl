@@ -26,7 +26,7 @@ POMGs.stateindex(::CompetitiveTiger, s::Bool) = Int(s) + 1
 POMGs.player_actionindex(::CompetitiveTiger, i::Int, a::Int) = a + 1
 POMGs.player_obsindex(::CompetitiveTiger, i::Int, o::Bool) = Int(o) + 1
 
-function transition(::CompetitiveTiger, s::Bool, a::Int)
+function POMGs.transition(::CompetitiveTiger, s::Bool, a::Tuple{Int,Int})
     if a == TIGER_OPEN_LEFT || a == TIGER_OPEN_RIGHT
         p = 0.5
     elseif s
@@ -37,7 +37,7 @@ function transition(::CompetitiveTiger, s::Bool, a::Int)
     return BoolDistribution(p)
 end
 
-function POMGs.reward(::CompetitiveTiger, s::Bool, a::Int)
+function POMGs.reward(::CompetitiveTiger, s::Bool, a::Tuple{Int,Int})
     a1,a2 = a
     p1_reward = if a1 == 3
         if a2 == 3
