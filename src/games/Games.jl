@@ -13,4 +13,7 @@ export MatrixGame
 include("kuhn.jl")
 export Kuhn
 
+include("tiger.jl")
+export CompetitiveTiger
+
 end

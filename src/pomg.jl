@@ -156,3 +156,18 @@ function isterminal_belief end
 statetype(::POMG{S}) where S = S
 actiontype(::POMG{S,A}) where {S,A} = A
 obstype(::POMG{S,A,O}) where {S,A,O} = O
+
+"""
+    stateindex(game::POMG, s)
+"""
+function stateindex end
+
+"""
+    player_actionindex(game::POMG, i::Int, a)
+"""
+function player_actionindex end
+
+"""
+    player_obs(game::POMG, i::Int, a)
+"""
+function player_obsindex end

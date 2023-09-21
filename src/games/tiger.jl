@@ -16,6 +16,8 @@ const TIGER_RIGHT = true
 
 POMGs.discount(game::CompetitiveTiger) = game.discount
 
+POMGs.initialstate(::CompetitiveTiger) = Uniform((false, true))
+
 POMGs.states(::CompetitiveTiger) = (false, true)
 POMGs.actions(::CompetitiveTiger) = (0:3, 0:3)
 POMGs.observations(::CompetitiveTiger) = ((:left, :right, :nothing), (:left, :right, :nothing))
