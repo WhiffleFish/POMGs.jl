@@ -36,7 +36,7 @@ bets similarly to a standard poker. If both players bet or both players pass, th
 with the higher card wins, otherwise, the betting player wins."
 - https://en.wikipedia.org/wiki/Kuhn_poker
 """
-struct Kuhn <: POMG{KuhnState, Tuple{Int,Int}, Int}
+struct Kuhn <: POMG{KuhnState, Tuple{Int,Int}, Tuple{Int,Int}}
     chance_states::Uniform{Set{KuhnState}}
     function Kuhn()
         chance_states = Set(KuhnState(SVector(i,j)) for i in 1:3, j in 1:3 if i != j)

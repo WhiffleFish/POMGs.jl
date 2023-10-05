@@ -1,4 +1,4 @@
-struct MatrixGame{N,T} <: POMG{Bool,NTuple{N,Int},Nothing}
+struct MatrixGame{N,T} <: POMG{Bool,NTuple{N,Int},NTuple{N,Nothing}}
     R::Array{NTuple{N,T}, N}
 end
 

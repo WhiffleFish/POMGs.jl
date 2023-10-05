@@ -12,10 +12,9 @@ end
 
 function train!(sol::CFRSolver, n; progress=true)
     prog = Progress(n; enabled=progress)
-    s0 = initialstate(sol.game)
     for i ∈ 1:n
         for p ∈ players(sol.game)
-            traverse(sol, s0, p, (1,1))
+            traverse(sol, 1, p, (1,1))
             update_strategy!(sol.trees[p])
         end
         next!(prog)

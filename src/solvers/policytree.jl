@@ -25,8 +25,9 @@ struct PolicyTree{T,A,O}
     children::Dict{Tuple{Int,A,O}, Int} # τ(bao)
 end
 
-function PolicyTree{T}(game::POMG{S,Tuple{A1,A2},O}, p::Number) where {T,S,A1,A2,O}
+function PolicyTree{T}(game::POMG{S,Tuple{A1,A2},Tuple{O1,O2}}, p::Number) where {T,S,A1,A2,O1,O2}
     A = isone(p) ? A1 : A2
+    O = isone(p) ? O1 : O2
     s0 = initialstate(game)
     act = actions(game, s0, p)
 
