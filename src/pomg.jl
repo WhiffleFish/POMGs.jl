@@ -26,7 +26,7 @@ export
 Abstract base type for a partially observable Markov games.
     S: state type
     A: joint action type
-    O: observation type
+    O: joint observation type
 """
 abstract type POMG{S,A,O} end
 
@@ -62,6 +62,9 @@ player_observation(m::POMG, i::Int, a, sp) = player_observation(m, i, sp)
 
 
 function reward end
+
+reward(p::POMG, s, a, sp, o) = reward(p, s, a, sp)
+reward(p::POMG, s, a, sp) = reward(p, s, a)
 
 """
     isterminal(m::POMG, s)
