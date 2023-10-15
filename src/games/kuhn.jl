@@ -112,4 +112,13 @@ function POMGs.observation(game::Kuhn, s::KuhnState, a::Tuple, sp::KuhnState)
     end
 end
 
+function POMGs.player_observation(game::Kuhn, i::Int, s::KuhnState, a::Tuple, sp::KuhnState)
+    p = player(game, s)
+    return if iszero(p)
+        Deterministic(isone(i) ? sp.cards[1] : sp.cards[2]) # not type stable...
+    else
+        Deterministic(a[p])
+    end
+end
+
 POMGs.discount(::Kuhn) = 1.0

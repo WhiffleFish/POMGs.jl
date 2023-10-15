@@ -85,6 +85,7 @@ end
 
 # TODO: not using `p_listen_correctly` game field
 # TODO: using product distributions would be a lot easier
+# FIXME: Not type stable
 function POMGs.observation(::CompetitiveTiger, a, sp)
     a1, a2 = a
     return if iszero(a1)
@@ -115,5 +116,18 @@ function POMGs.observation(::CompetitiveTiger, a, sp)
         end
     else
         Deterministic((:nothing, :nothing))
+    end
+end
+
+# FIXME: Not type stable
+function player_observation(::CompetitiveTiger, p::Int, a::Int, sp::Bool)
+    return if iszero(a[p])
+        if sp == TIGER_LEFT
+            SparseCat([:left, :right], [0.85, 0.15])
+        else
+            SparseCat([:left, :right], [0.15, 0.85])
+        end
+    else
+        Deterministic(nothing)
     end
 end
