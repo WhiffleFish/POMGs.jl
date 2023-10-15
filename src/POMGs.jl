@@ -4,6 +4,7 @@ module POMGs
 using ProgressMeter
 using Random
 import POMDPs
+import POMDPTools
 using POMDPTools.POMDPDistributions
 using POMDPTools.BeliefUpdaters
 using Reexport
@@ -17,6 +18,9 @@ include("pomg.jl")
 include("gen.jl")
 
 include("gen_impl.jl")
+
+include("sparse_tabular.jl")
+export SparseTabularPOMG, SparseTabularMG
 
 include(joinpath("BeliefUpdaters", "BeliefUpdaters.jl"))
 @reexport using .BeliefUpdaters

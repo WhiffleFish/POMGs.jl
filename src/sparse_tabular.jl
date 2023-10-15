@@ -1,24 +1,43 @@
 # assumed zero-sum
-struct SparseTabularPOSG <: POSG{Int, Tuple{Int,Int}, Tuple{Int,Int}}
+struct SparseTabularPOMG <: POMG{Int, Tuple{Int,Int}, Tuple{Int,Int}}
     T::Matrix{SparseMatrixCSC{Float64, Int64}} # T[a1, a2][sp, s]
     R::Array{Float64, 3} # R[s,a1,a2]
-    O::NTuple{2,Matrix{SparseMatrixCSC{Float64, Int64}}} # O[i][a1, a2][sp, o]
+    O::NTuple{2,Matrix{SparseMatrixCSC{Float64, Int64}}} # O[i][a1, a2][sp, o] - only works with product distribution observations
     isterminal::SparseVector{Bool, Int}
     initialstate::SparseVector{Float64, Int}
     discount::Float64
 end
 
-function SparseTabularPOSG(game::POSG)
-    S = ordered_states(game)
-    A = A1,A2 = ordered_actions(game) # (A1, A2)
-    O = O1,O2 = ordered_observations(game) # (O1, O2)
+struct SparseTabularMG
+    T::Matrix{SparseMatrixCSC{Float64, Int64}} # T[a1, a2][sp, s]
+    R::Array{Float64, 3} # R[s,a1,a2]
+    isterminal::SparseVector{Bool, Int}
+    initialstate::SparseVector{Float64, Int}
+    discount::Float64
+end
+
+function SparseTabularMG(game::POMG)
+    S = states(game)
+    A = actions(game) # (A1, A2)
+
+    terminal = _vectorized_terminal(game, S)
+    T = _tabular_transitions(game, S, A, terminal)
+    R = _tabular_rewards(game, S, A, terminal)
+    b0 = _vectorized_initialstate(game, S)
+    return SparseTabularMG(T,R,terminal,b0,discount(game))
+end
+
+function SparseTabularPOMG(game::POMG)
+    S = states(game)
+    A = A1,A2 = actions(game) # (A1, A2)
+    O = O1,O2 = observations(game) # (O1, O2)
 
     terminal = _vectorized_terminal(game, S)
     T = _tabular_transitions(game, S, A, terminal)
     R = _tabular_rewards(game, S, A, terminal)
     O = _tabular_observations(game, S, A, O)
     b0 = _vectorized_initialstate(game, S)
-    return ModifiedSparseTabular(T,R,O,terminal,b0,discount(game))
+    return SparseTabularPOMG(T,R,O,terminal,b0,discount(game))
 end
 
 function _tabular_transitions(game::POMG, S, A, terminal)
@@ -48,30 +67,40 @@ function _fill_transitions!(game::POMG, T, S, a, terminal)
 end
 
 function _tabular_rewards(pomdp, S, A, terminal)
-    R = Matrix{Float64}(undef, length(S), length(A))
+    A1, A2 = A
+    R = Matrix{Float64}(undef, length(S), length(A1), length(A2))
     for (s_idx, s) ∈ enumerate(S)
         if terminal[s_idx]
-            R[s_idx, :] .= 0.0
+            R[s_idx, :, :] .= 0.0
             continue
         end
-        for (a_idx, a) ∈ enumerate(A)
-            R[s_idx, a_idx] = reward(pomdp, s, a)
+        for (a1_idx, a1) ∈ enumerate(A1)
+            for (a2_idx, a2) ∈ enumerate(A2)
+                R[s_idx, a1_idx, a2_idx] = first(reward(pomdp, s, (a1, a2))) # only recording reward for player 1 - assumed zero-sum
+            end
         end
     end
     R
 end
 
-function _tabular_observations(pomdp, S, A, O)
-    _O = [Matrix{Float64}(undef, length(S), length(O)) for _ ∈ eachindex(A)]
-    for i ∈ eachindex(_O)
-        _fill_observations!(pomdp, _O[i], S, A[i], O)
+function _tabular_observations(game, S, A, O)
+    A1,A2 = A
+    O1,O2 = O
+    _O = (
+        [Matrix{Float64}(undef, length(S), length(O1)) for _ ∈ eachindex(A1), _ ∈ eachindex(A2)], 
+        [Matrix{Float64}(undef, length(S), length(O2)) for _ ∈ eachindex(A1), _ ∈ eachindex(A2)]
+    )
+    for i ∈ 1:2
+        for (a1_idx, a1) ∈ enumerate(A1), (a2_idx, a2) ∈ enumerate(A2)
+            _fill_observations(game, i, _O[i][a1_idx, a2_idx], S, (a1, a2), O[i])
+        end
     end
     _O
 end
 
-function _fill_observations!(pomdp, Oa, S, a, O)
+function _fill_observations!(game, i, Oa, S, a, O)
     for (sp_idx, sp) ∈ enumerate(S)
-        obs_dist = observation(pomdp, a, sp)
+        obs_dist = player_observation(game, i, a, sp)
         for (o_idx, o) ∈ enumerate(O)
             Oa[sp_idx, o_idx] = pdf(obs_dist, o)
         end
@@ -79,34 +108,34 @@ function _fill_observations!(pomdp, Oa, S, a, O)
     Oa
 end
 
-function _vectorized_terminal(pomdp, S)
+function _vectorized_terminal(game, S)
     term = BitVector(undef, length(S))
-    @inbounds for i ∈ eachindex(term,S)
-        term[i] = isterminal(pomdp, S[i])
+    @inbounds for i ∈ eachindex(S)
+        term[i] = isterminal(game, S[i])
     end
     return term
 end
 
-function _vectorized_initialstate(pomdp, S)
-    b0 = initialstate(pomdp)
+function _vectorized_initialstate(game, S)
+    b0 = initialstate(game)
     b0_vec = Vector{Float64}(undef, length(S))
-    @inbounds for i ∈ eachindex(S, b0_vec)
+    @inbounds for i ∈ eachindex(S)
         b0_vec[i] = pdf(b0, S[i])
     end
     return sparse(b0_vec)
 end
 
-POMDPTools.ordered_states(pomdp::ModifiedSparseTabular) = axes(pomdp.R, 1)
-POMDPs.states(pomdp::ModifiedSparseTabular) = ordered_states(pomdp)
-POMDPTools.ordered_actions(pomdp::ModifiedSparseTabular) = eachindex(pomdp.T)
-POMDPs.actions(pomdp::ModifiedSparseTabular) = ordered_actions(pomdp)
-POMDPTools.ordered_observations(pomdp::ModifiedSparseTabular) = axes(first(pomdp.O), 2)
-POMDPs.observations(pomdp::ModifiedSparseTabular) = ordered_observations(pomdp)
+POMDPTools.ordered_states(pomdp::SparseTabularPOMG) = axes(pomdp.R, 1)
+POMDPs.states(pomdp::SparseTabularPOMG) = ordered_states(pomdp)
+POMDPTools.ordered_actions(pomdp::SparseTabularPOMG) = eachindex(pomdp.T)
+POMDPs.actions(pomdp::SparseTabularPOMG) = ordered_actions(pomdp)
+POMDPTools.ordered_observations(pomdp::SparseTabularPOMG) = axes(first(pomdp.O), 2)
+POMDPs.observations(pomdp::SparseTabularPOMG) = ordered_observations(pomdp)
 
-POMDPs.discount(pomdp::ModifiedSparseTabular) = pomdp.discount
-POMDPs.initialstate(pomdp::ModifiedSparseTabular) = pomdp.initialstate
-POMDPs.isterminal(pomdp::ModifiedSparseTabular, s::Int) = pomdp.isterminal[s]
+POMDPs.discount(pomdp::SparseTabularPOMG) = pomdp.discount
+POMDPs.initialstate(pomdp::SparseTabularPOMG) = pomdp.initialstate
+POMDPs.isterminal(pomdp::SparseTabularPOMG, s::Int) = pomdp.isterminal[s]
 
-n_states(pomdp::ModifiedSparseTabular) = length(states(pomdp))
-n_actions(pomdp::ModifiedSparseTabular) = length(actions(pomdp))
-n_observations(pomdp::ModifiedSparseTabular) = length(observations(pomdp))
+n_states(pomdp::SparseTabularPOMG) = length(states(pomdp))
+n_actions(pomdp::SparseTabularPOMG) = length.(actions(pomdp))
+n_observations(pomdp::SparseTabularPOMG) = length.(observations(pomdp))
