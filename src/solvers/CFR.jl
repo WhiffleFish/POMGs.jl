@@ -1,4 +1,3 @@
-# TODO: add max_depth & leaf-node value estimator
 struct CFRSolver{G <: POMG, T, UP}
     game::G
     trees::T
