@@ -60,7 +60,7 @@ function _fill_transitions!(game::POMG, T, S, a, terminal)
         end
         Tsa = transition(game, s, a)
         for (sp_idx, sp) ∈ enumerate(S)
-            T[sp_idx, s_idx] = pdf(Tsa, sp)
+            T[sp_idx, s_idx] = POMDPs.pdf(Tsa, sp)
         end
     end
     T
@@ -68,7 +68,7 @@ end
 
 function _tabular_rewards(pomdp, S, A, terminal)
     A1, A2 = A
-    R = Matrix{Float64}(undef, length(S), length(A1), length(A2))
+    R = Array{Float64}(undef, length(S), length(A1), length(A2))
     for (s_idx, s) ∈ enumerate(S)
         if terminal[s_idx]
             R[s_idx, :, :] .= 0.0
@@ -92,7 +92,7 @@ function _tabular_observations(game, S, A, O)
     )
     for i ∈ 1:2
         for (a1_idx, a1) ∈ enumerate(A1), (a2_idx, a2) ∈ enumerate(A2)
-            _fill_observations(game, i, _O[i][a1_idx, a2_idx], S, (a1, a2), O[i])
+            _fill_observations!(game, i, _O[i][a1_idx, a2_idx], S, (a1, a2), O[i])
         end
     end
     _O
@@ -102,7 +102,7 @@ function _fill_observations!(game, i, Oa, S, a, O)
     for (sp_idx, sp) ∈ enumerate(S)
         obs_dist = player_observation(game, i, a, sp)
         for (o_idx, o) ∈ enumerate(O)
-            Oa[sp_idx, o_idx] = pdf(obs_dist, o)
+            Oa[sp_idx, o_idx] = POMDPs.pdf(obs_dist, o)
         end
     end
     Oa
@@ -120,7 +120,7 @@ function _vectorized_initialstate(game, S)
     b0 = initialstate(game)
     b0_vec = Vector{Float64}(undef, length(S))
     @inbounds for i ∈ eachindex(S)
-        b0_vec[i] = pdf(b0, S[i])
+        b0_vec[i] = POMDPs.pdf(b0, S[i])
     end
     return sparse(b0_vec)
 end

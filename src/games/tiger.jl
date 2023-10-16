@@ -120,14 +120,14 @@ function POMGs.observation(::CompetitiveTiger, a, sp)
 end
 
 # FIXME: Not type stable
-function player_observation(::CompetitiveTiger, p::Int, a::Int, sp::Bool)
+function POMGs.player_observation(::CompetitiveTiger, p::Int, a::Tuple{Int,Int}, sp::Bool)
     return if iszero(a[p])
         if sp == TIGER_LEFT
-            SparseCat([:left, :right], [0.85, 0.15])
+            SparseCat(SA[:left, :right], SA[0.85, 0.15])
         else
-            SparseCat([:left, :right], [0.15, 0.85])
+            SparseCat(SA[:left, :right], SA[0.15, 0.85])
         end
     else
-        Deterministic(nothing)
+        Deterministic(:nothing)
     end
 end
