@@ -22,6 +22,8 @@ include("gen_impl.jl")
 include("sparse_tabular.jl")
 export SparseTabularPOMG, SparseTabularMG
 
+include("consistency_check.jl")
+
 include(joinpath("BeliefUpdaters", "BeliefUpdaters.jl"))
 @reexport using .BeliefUpdaters
 
