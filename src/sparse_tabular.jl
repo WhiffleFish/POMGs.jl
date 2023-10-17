@@ -125,17 +125,19 @@ function _vectorized_initialstate(game, S)
     return sparse(b0_vec)
 end
 
-POMDPTools.ordered_states(pomdp::SparseTabularPOMG) = axes(pomdp.R, 1)
-POMDPs.states(pomdp::SparseTabularPOMG) = ordered_states(pomdp)
-POMDPTools.ordered_actions(pomdp::SparseTabularPOMG) = eachindex(pomdp.T)
-POMDPs.actions(pomdp::SparseTabularPOMG) = ordered_actions(pomdp)
-POMDPTools.ordered_observations(pomdp::SparseTabularPOMG) = axes(first(pomdp.O), 2)
-POMDPs.observations(pomdp::SparseTabularPOMG) = ordered_observations(pomdp)
+const SparseTabularGame = Union{SparseTabularPOMG, SparseTabularMG}
 
-POMDPs.discount(pomdp::SparseTabularPOMG) = pomdp.discount
-POMDPs.initialstate(pomdp::SparseTabularPOMG) = pomdp.initialstate
-POMDPs.isterminal(pomdp::SparseTabularPOMG, s::Int) = pomdp.isterminal[s]
+# POMGs.ordered_states(pomdp::SparseTabularPOMG) = axes(pomdp.R, 1)
+POMGs.states(game::SparseTabularGame) = axes(game.R, 1)
+# POMGs.ordered_actions(pomdp::SparseTabularPOMG) = eachindex(pomdp.T)
+POMGs.actions(game::SparseTabularGame) = axes(game.T)
+# POMGs.ordered_observations(pomdp::SparseTabularPOMG) = axes(first(pomdp.O), 2)
+POMGs.observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
 
-n_states(pomdp::SparseTabularPOMG) = length(states(pomdp))
-n_actions(pomdp::SparseTabularPOMG) = length.(actions(pomdp))
-n_observations(pomdp::SparseTabularPOMG) = length.(observations(pomdp))
+POMGs.discount(game::SparseTabularGame) = game.discount
+POMGs.initialstate(game::SparseTabularGame) = game.initialstate
+POMGs.isterminal(game::SparseTabularGame, s::Int) = game.isterminal[s]
+
+n_states(game::SparseTabularGame) = length(states(game))
+n_actions(game::SparseTabularGame) = length.(actions(game))
+n_observations(game::SparseTabularPOMG) = length.(observations(game))

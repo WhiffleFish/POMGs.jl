@@ -20,7 +20,7 @@ include("gen.jl")
 include("gen_impl.jl")
 
 include("sparse_tabular.jl")
-export SparseTabularPOMG, SparseTabularMG
+export SparseTabularPOMG, SparseTabularMG, SparseTabularGame
 
 include("consistency_check.jl")
 
