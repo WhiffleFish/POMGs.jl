@@ -16,6 +16,8 @@ struct SparseTabularMG
     discount::Float64
 end
 
+SparseTabularMG(game::SparseTabularMG) = game
+
 function SparseTabularMG(game::POMG)
     S = states(game)
     A = actions(game) # (A1, A2)
@@ -26,6 +28,8 @@ function SparseTabularMG(game::POMG)
     b0 = _vectorized_initialstate(game, S)
     return SparseTabularMG(T,R,terminal,b0,discount(game))
 end
+
+SparseTabularMG(game::SparseTabularPOMG) = SparseTabularMG(game.T,game.R, game.isterminal, game.initialstate, game.discount)
 
 function SparseTabularPOMG(game::POMG)
     S = states(game)
@@ -39,6 +43,8 @@ function SparseTabularPOMG(game::POMG)
     b0 = _vectorized_initialstate(game, S)
     return SparseTabularPOMG(T,R,O,terminal,b0,discount(game))
 end
+
+SparseTabularPOMG(game::SparseTabularPOMG) = game
 
 function _tabular_transitions(game::POMG, S, A, terminal)
     ns = length(S)
