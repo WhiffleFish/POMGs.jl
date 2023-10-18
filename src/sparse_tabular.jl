@@ -51,7 +51,8 @@ function _tabular_transitions(game::POMG, S, A, terminal)
     na1, na2 = length.(A)
     T = fill(zeros(ns,ns), na1, na2)
     for idx ∈ CartesianIndices(T)
-        a = Tuple(idx)
+        a_idxs = Tuple(idx)
+        a = first(A)[first(a_idxs)], last(A)[last(a_idxs)]
         _fill_transitions!(game, T[idx], S, a, terminal)
     end
     T
