@@ -1,4 +1,7 @@
-Base.@kwdef struct CompetitiveTiger <: POMG{Bool, Tuple{Int,Int}, Tuple{Symbol,Symbol}}
+@enum TigerState TIGER_LEFT=1 TIGER_RIGHT=2 NOTHING=3
+@enum TigerAction BLOCK=1 LISTEN=2 OPEN_LEFT=3 OPEN_RIGHT=4
+
+Base.@kwdef struct CompetitiveTiger <: POMG{TigerState, Tuple{TigerAction,TigerAction}, Tuple{TigerState,TigerState}}
     r_listen::Float64           = -1.0
     r_findtiger::Float64        = -100.
     r_escapetiger::Float64      = 10.
@@ -6,128 +9,81 @@ Base.@kwdef struct CompetitiveTiger <: POMG{Bool, Tuple{Int,Int}, Tuple{Symbol,S
     discount::Float64           = 0.95
 end
 
-const TIGER_LISTEN = 0
-const TIGER_OPEN_LEFT = 1
-const TIGER_OPEN_RIGHT = 2
-const TIGER_BLOCK = 3
-
-const TIGER_LEFT = false
-const TIGER_RIGHT = true
+const R_TIGER = let
+    # A1 × S × A2
+    _R = Float64[
+    [
+        0 0
+        -1 -1
+        -1 1
+        1 -1
+    ];;;
+    [
+        1 1
+        0 0
+        4 -2
+        -2 4
+    ];;;
+    [
+        1 -1
+        -4 2
+        0 0
+        -6 6
+    ];;;
+    [
+        -1 1
+        2 -4
+        6 -6
+        0 0
+    ]]
+    # convert to S × A1 × A2
+    SArray{Tuple{2,4,4}}(permutedims(_R, (2,1,3)))
+end
 
 POMGs.discount(game::CompetitiveTiger) = game.discount
+POMGs.initialstate(::CompetitiveTiger) = Uniform((TIGER_LEFT, TIGER_RIGHT))
 
-POMGs.initialstate(::CompetitiveTiger) = Uniform((false, true))
+POMGs.states(::CompetitiveTiger) = (TIGER_LEFT, TIGER_RIGHT)
+POMGs.actions(::CompetitiveTiger) = (instances(TigerAction), instances(TigerAction))
+POMGs.observations(::CompetitiveTiger) = (instances(TigerState), instances(TigerState))
 
-POMGs.states(::CompetitiveTiger) = (false, true)
-POMGs.actions(::CompetitiveTiger) = (0:3, 0:3)
-POMGs.observations(::CompetitiveTiger) = ((:left, :right, :nothing), (:left, :right, :nothing))
+POMGs.stateindex(::CompetitiveTiger, s::TigerState) = Int(s)
+POMGs.player_actionindex(::CompetitiveTiger, i::Int, a::TigerAction) = Int(a)
+POMGs.player_obsindex(::CompetitiveTiger, i::Int, o::TigerState) = Int(o)
 
-POMGs.stateindex(::CompetitiveTiger, s::Bool) = Int(s) + 1
-POMGs.player_actionindex(::CompetitiveTiger, i::Int, a::Int) = a + 1
-POMGs.player_obsindex(::CompetitiveTiger, i::Int, o::Bool) = Int(o) + 1
-
-function POMGs.transition(::CompetitiveTiger, s::Bool, a::Tuple{Int,Int})
-    if a == TIGER_OPEN_LEFT || a == TIGER_OPEN_RIGHT
+function POMGs.transition(::CompetitiveTiger, s::TigerState, a::Tuple{TigerAction,TigerAction})
+    if a == OPEN_LEFT || a == OPEN_RIGHT
         p = 0.5
-    elseif s
+    elseif s == TIGER_RIGHT
         p = 1.0
     else
         p = 0.0
     end
-    return BoolDistribution(p)
+    return SparseCat(SA[TIGER_LEFT, TIGER_RIGHT], SA[1-p, p])
 end
 
-function POMGs.reward(::CompetitiveTiger, s::Bool, a::Tuple{Int,Int})
-    a1,a2 = a
-    p1_reward = if a1 == 3
-        if a2 == 3
-           0.
-        elseif a2 == 0
-            -1.
-        elseif a2 == 1
-            s == TIGER_LEFT ? -1. : 1.
-        elseif a2 == 2
-            s == TIGER_LEFT ? 1. : -1.
-        end
-    elseif a1 == 0
-        if a2 == 3
-            1.
-        elseif a2 == 0
-            0.
-        elseif a2 == 1
-            s == TIGER_LEFT ? 4. : -2.
-        elseif a2 == 2
-            s == TIGER_LEFT ? -2. : 4.
-         end
-    elseif a1 == 1
-        if a2 == 3
-            s == TIGER_LEFT ? 1. : -1.
-        elseif a2 == 0
-            s == TIGER_LEFT ? -4. : 2.
-        elseif a2 == 1
-            0.
-        elseif a2 == 2
-            s == TIGER_LEFT ? -6. : 6.
-        end
-    elseif a1 == 2
-        if a2 == 3
-            s == TIGER_LEFT ? 1. : -1.
-        elseif a2 == 0
-            s == TIGER_LEFT ? 2. : -4.
-        elseif a2 == 1
-            0.
-        elseif a2 == 2
-            s == TIGER_LEFT ? 6. : -6.
-        end
-    end
+function POMGs.reward(::CompetitiveTiger, s::TigerState, a::Tuple{TigerAction,TigerAction})
+    p1_reward = R_TIGER[Int(s), Int.(a)...]
     return (p1_reward, -p1_reward)
 end
 
-# TODO: not using `p_listen_correctly` game field
-# TODO: using product distributions would be a lot easier
-# FIXME: Not type stable
-function POMGs.observation(::CompetitiveTiger, a, sp)
-    a1, a2 = a
-    return if iszero(a1)
-        if iszero(a2)
-            if sp == TIGER_LEFT
-                SparseCat(
-                    [(:left, :left), (:left, :right), (:right, :left), (:right, :right)], 
-                    [0.7225, 0.1275, 0.1275, 0.0225]
-                )
-            else
-                SparseCat(
-                    [(:left, :left), (:left, :right), (:right, :left), (:right, :right)], 
-                    [0.0225, 0.1275, 0.1275, 0.7225]
-                )
-            end
-        else
-            if sp == TIGER_LEFT
-                SparseCat([(:left, :nothing), (:right, :nothing)], [0.85, 0.15])
-            else
-                SparseCat([(:left, :nothing), (:right, :nothing)], [0.15, 0.85])
-            end
-        end
-    elseif iszero(a2)
-        if sp == TIGER_LEFT
-            SparseCat([(:nothing, :left), (:nothing, :right)], [0.85, 0.15])
-        else
-            SparseCat([(:nothing, :left), (:nothing, :right)], [0.15, 0.85])
-        end
-    else
-        Deterministic((:nothing, :nothing))
-    end
+function POMGs.observation(game::CompetitiveTiger, a, sp)
+    return ProductDistribution(
+        player_observation(game, 1, a, sp), 
+        player_observation(game, 2, a, sp)
+    )
 end
 
 # FIXME: Not type stable
-function POMGs.player_observation(::CompetitiveTiger, p::Int, a::Tuple{Int,Int}, sp::Bool)
-    return if iszero(a[p])
+# TODO: not using `p_listen_correctly` game field
+function POMGs.player_observation(::CompetitiveTiger, p::Int, a::Tuple{TigerAction,TigerAction}, sp::TigerState)
+    return if a[p] == LISTEN
         if sp == TIGER_LEFT
-            SparseCat(SA[:left, :right], SA[0.85, 0.15])
+            SparseCat(SA[TIGER_LEFT, TIGER_LEFT], SA[0.85, 0.15])
         else
-            SparseCat(SA[:left, :right], SA[0.15, 0.85])
+            SparseCat(SA[TIGER_LEFT, TIGER_LEFT], SA[0.15, 0.85])
         end
     else
-        Deterministic(:nothing)
+        Deterministic(NOTHING)
     end
 end
