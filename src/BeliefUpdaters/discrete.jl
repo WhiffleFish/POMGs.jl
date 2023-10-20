@@ -76,7 +76,7 @@ Distributions.support(b::DiscretePOMGBelief) = b.state_list
 Statistics.mean(b::DiscretePOMGBelief) = sum(b.state_list .* b.b)/sum(b.b)
 StatsBase.mode(b::DiscretePOMGBelief) = b.state_list[argmax(b.b)]
 
-==(b1::DiscretePOMGBelief, b2::DiscretePOMGBelief) = b1.state_list == b2.state_list && b1.b == b2.b
+Base.:(==)(b1::DiscretePOMGBelief, b2::DiscretePOMGBelief) = b1.state_list == b2.state_list && b1.b == b2.b
 
 Base.hash(b::DiscretePOMGBelief, h::UInt) = hash(b.b, hash(b.state_list, h))
 

@@ -27,8 +27,8 @@ include(joinpath("BeliefUpdaters", "BeliefUpdaters.jl"))
 
 include(joinpath("games", "games.jl"))
 
-include(joinpath("solvers", "solvers.jl"))
+# include(joinpath("solvers", "solvers.jl"))
 
-include(joinpath("evaluation", "evaluation.jl"))
+# include(joinpath("evaluation", "evaluation.jl"))
 
 end # module
