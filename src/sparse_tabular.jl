@@ -33,8 +33,8 @@ SparseTabularMG(game::SparseTabularPOMG) = SparseTabularMG(game.T,game.R, game.i
 
 function SparseTabularPOMG(game::POMG)
     S = states(game)
-    A = A1,A2 = actions(game) # (A1, A2)
-    O = O1,O2 = observations(game) # (O1, O2)
+    A = actions(game) # (A1, A2)
+    O = observations(game) # (O1, O2)
 
     terminal = _vectorized_terminal(game, S)
     T = _tabular_transitions(game, S, A, terminal)
@@ -73,7 +73,7 @@ function _fill_transitions!(game::POMG, T, S, a, terminal)
     T
 end
 
-function _tabular_rewards(pomdp, S, A, terminal)
+function _tabular_rewards(game, S, A, terminal)
     A1, A2 = A
     R = Array{Float64}(undef, length(S), length(A1), length(A2))
     for (s_idx, s) ∈ enumerate(S)
@@ -83,7 +83,7 @@ function _tabular_rewards(pomdp, S, A, terminal)
         end
         for (a1_idx, a1) ∈ enumerate(A1)
             for (a2_idx, a2) ∈ enumerate(A2)
-                R[s_idx, a1_idx, a2_idx] = first(reward(pomdp, s, (a1, a2))) # only recording reward for player 1 - assumed zero-sum
+                R[s_idx, a1_idx, a2_idx] = first(reward(game, s, (a1, a2))) # only recording reward for player 1 - assumed zero-sum
             end
         end
     end
@@ -134,16 +134,16 @@ end
 
 const SparseTabularGame = Union{SparseTabularPOMG, SparseTabularMG}
 
-# POMGs.ordered_states(pomdp::SparseTabularPOMG) = axes(pomdp.R, 1)
-POMGs.states(game::SparseTabularGame) = axes(game.R, 1)
-# POMGs.ordered_actions(pomdp::SparseTabularPOMG) = eachindex(pomdp.T)
-POMGs.actions(game::SparseTabularGame) = axes(game.T)
-# POMGs.ordered_observations(pomdp::SparseTabularPOMG) = axes(first(pomdp.O), 2)
-POMGs.observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
+POMDPs.ordered_states(game::SparseTabularPOMG) = axes(game.R, 1)
+POMDPs.states(game::SparseTabularGame) = axes(game.R, 1)
+POMDPs.ordered_actions(game::SparseTabularPOMG) = axes(game.T)
+POMDPs.actions(game::SparseTabularGame) = axes(game.T)
+POMDPs.ordered_observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
+POMDPs.observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
 
-POMGs.discount(game::SparseTabularGame) = game.discount
-POMGs.initialstate(game::SparseTabularGame) = game.initialstate
-POMGs.isterminal(game::SparseTabularGame, s::Int) = game.isterminal[s]
+POMDPs.discount(game::SparseTabularGame) = game.discount
+POMDPs.initialstate(game::SparseTabularGame) = game.initialstate
+POMDPs.isterminal(game::SparseTabularGame, s::Int) = game.isterminal[s]
 
 n_states(game::SparseTabularGame) = length(states(game))
 n_actions(game::SparseTabularGame) = length.(actions(game))

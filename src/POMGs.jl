@@ -3,7 +3,7 @@ module POMGs
 
 using ProgressMeter
 using Random
-import POMDPs
+using POMDPs
 import POMDPTools
 using POMDPTools.POMDPDistributions
 using POMDPTools.BeliefUpdaters
@@ -14,8 +14,6 @@ include("distributions.jl")
 export ProductDistribution
 
 include("pomg.jl")
-
-include("gen.jl")
 
 include("gen_impl.jl")
 
