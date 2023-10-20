@@ -42,7 +42,7 @@ end
 
 function POMDPTools.has_consistent_observation_distributions(game::POMG; atol=0.0)
     S = states(game)
-    O = observations(game)
+    O1, O2 = observations(game)
     A1, A2 = actions(game)
     ok = true
     for s in states(game)
@@ -54,12 +54,14 @@ function POMDPTools.has_consistent_observation_distributions(game::POMG; atol=0.
                     psum = 0.0
                     sup = Set(support(obs))
                     for o in sup
-                        if POMDPs.pdf(obs, o) > 0.0 && !(o in O)
+                        o1, o2 = o
+                        if POMDPs.pdf(obs, o) > 0.0 && !(o1 in O1 && o2 ∈ O2)
                             @warn "o in support(observation(game, s, a, sp)), but not in observations(game)" s a sp o
                             ok = false
                         end
                     end
-                    for o in observations(m)
+                    for o1 ∈ O1, o2 ∈ O2
+                        o = (o1,o2)
                         p = POMDPs.pdf(obs, o)
                         if p < 0.0
                             @warn "Observation probability negative ($p < 0.0)." s a sp o
