@@ -134,11 +134,11 @@ end
 
 const SparseTabularGame = Union{SparseTabularPOMG, SparseTabularMG}
 
-POMDPs.ordered_states(game::SparseTabularPOMG) = axes(game.R, 1)
+POMDPTools.ordered_states(game::SparseTabularPOMG) = axes(game.R, 1)
 POMDPs.states(game::SparseTabularGame) = axes(game.R, 1)
-POMDPs.ordered_actions(game::SparseTabularPOMG) = axes(game.T)
+POMDPTools.ordered_actions(game::SparseTabularPOMG) = axes(game.T)
 POMDPs.actions(game::SparseTabularGame) = axes(game.T)
-POMDPs.ordered_observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
+POMDPTools.ordered_observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
 POMDPs.observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
 
 POMDPs.discount(game::SparseTabularGame) = game.discount
