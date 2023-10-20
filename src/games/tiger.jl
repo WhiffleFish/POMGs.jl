@@ -79,9 +79,9 @@ end
 function POMGs.player_observation(::CompetitiveTiger, p::Int, a::Tuple{TigerAction,TigerAction}, sp::TigerState)
     return if a[p] == LISTEN
         if sp == TIGER_LEFT
-            SparseCat(SA[TIGER_LEFT, TIGER_LEFT], SA[0.85, 0.15])
+            SparseCat(SA[TIGER_LEFT, TIGER_RIGHT], SA[0.85, 0.15])
         else
-            SparseCat(SA[TIGER_LEFT, TIGER_LEFT], SA[0.15, 0.85])
+            SparseCat(SA[TIGER_LEFT, TIGER_RIGHT], SA[0.15, 0.85])
         end
     else
         Deterministic(NOTHING)
