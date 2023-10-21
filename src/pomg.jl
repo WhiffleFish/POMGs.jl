@@ -1,5 +1,7 @@
 export 
-    POMG, 
+    POMG,
+    MG,
+    Game,
     discount, 
     transition, 
     observation,
@@ -24,7 +26,7 @@ export
 
 """
     POMG{S,A,O}
-Abstract base type for a partially observable Markov games.
+Abstract base type for partially observable Markov Games.
     S: state type
     A: joint action type
     O: joint observation type
@@ -32,21 +34,31 @@ Abstract base type for a partially observable Markov games.
 abstract type POMG{S,A,O} end
 
 """
-    discount(m::POMG)
-Return the discount factor for the problem.
+    MG{S,A}
+Abstract base type for fully observable Markov Games.
+    S: state type
+    A: joint action type
 """
-function POMDPs.discount(::POMG) end
+abstract type MG{S,A} end
+
+const Game = Union{POMG, MG}
 
 """
-    transition(m::POMG, state, action)
+    discount(m::Game)
+Return the discount factor for the problem.
+"""
+function POMDPs.discount(::Game) end
+
+"""
+    transition(m::Game, state, action)
 Return the transition distribution from the current state-joint-action pair.
 If it is difficult to define the probability density or mass function explicitly, consider using `POMDPModelTools.ImplicitDistribution` to define a generative model.
 """
-function POMDPs.transition(m::POMG, s, a) end
+function POMDPs.transition(::Game, s, a) end
 
-POMDPs.observation(problem::POMG, a, sp) = observation(problem, sp)
+POMDPs.observation(game::POMG, a, sp) = observation(game, sp)
 
-POMDPs.observation(problem::POMG, s, a, sp) = observation(problem, a, sp)
+POMDPs.observation(game::POMG, s, a, sp) = observation(game, a, sp)
 
 """
     player_observation(m::POMG, i::Int, a, sp)
@@ -60,24 +72,24 @@ player_observation(m::POMG, i::Int, s, a, sp) = player_observation(m, i, a, sp)
 player_observation(m::POMG, i::Int, a, sp) = player_observation(m, i, sp)
 
 
-function POMDPs.reward(::POMG, s, a) end
+function POMDPs.reward(::Game, s, a) end
 
-POMDPs.reward(p::POMG, s, a, sp, o) = reward(p, s, a, sp)
-POMDPs.reward(p::POMG, s, a, sp) = reward(p, s, a)
+POMDPs.reward(p::Game, s, a, sp, o) = reward(p, s, a, sp)
+POMDPs.reward(p::Game, s, a, sp) = reward(p, s, a)
 
 """
-    isterminal(m::POMG, s)
+    isterminal(m::Game, s)
 Check if state `s` is terminal.
 If a state is terminal, no actions will be taken in it and no additional rewards will be accumulated. Thus, the value function at such a state is, by definition, zero.
 """
-POMDPs.isterminal(problem::POMG, state) = false
+POMDPs.isterminal(problem::Game, state) = false
 
 """
-    initialstate(m::POMG)
+    initialstate(m::Game)
 Return a distribution of initial states for POMG `m`.
 If it is difficult to define the probability density or mass function explicitly, consider using `POMDPModelTools.ImplicitDistribution` to define a model for sampling.
 """
-function POMDPs.initialstate(::POMG) end
+function POMDPs.initialstate(::Game) end
 
 function players end
 
@@ -94,11 +106,9 @@ Returns the action space for each player (A1, A2)
 Returns the actions that can be taken for each player (A1, A2) at state `s`
 
 """
-function POMDPs.actions(::POMG) end
+function POMDPs.actions(::Game) end
 
-POMDPs.actions(g::POMG, s) = actions(g)
-
-POMDPs.actions(g::POMG, s, p) = actions(g, s)[p]
+POMDPs.actions(g::Game, s) = actions(g)
 
 """
     player_actions(game, p)
@@ -106,22 +116,22 @@ POMDPs.actions(g::POMG, s, p) = actions(g, s)[p]
 Returns the action space for player `p`
 
 --
-    player_actions(game, s, p)
+    player_actions(game, p, s)
 
 Returns the actions that can be taken by player `p` at state `s`
 """
 function player_actions end
 
-player_actions(game::POMG, i) = actions(game)[i]
+player_actions(game::Game, i) = actions(game)[i]
 
-player_actions(game::POMG, i, s) = actions(game, s)[i]
+player_actions(game::Game, i, s) = actions(game, s)[i]
 
 """
-    states(game::POMG)
+    states(game::Game)
 
 Returns the state space of a given game
 """
-function POMDPs.states(::POMG) end
+function POMDPs.states(::Game) end
 
 """
     (O1, O2) = observations(game)
@@ -157,10 +167,13 @@ POMDPs.statetype(::POMG{S}) where S = S
 POMDPs.actiontype(::POMG{S,A}) where {S,A} = A
 POMDPs.obstype(::POMG{S,A,O}) where {S,A,O} = O
 
+POMDPs.statetype(::MG{S}) where S = S
+POMDPs.actiontype(::MG{S,A}) where {S,A} = A
+
 """
     stateindex(game::POMG, s)
 """
-function POMDPs.stateindex(::POMG, s) end
+function POMDPs.stateindex(::Game, s) end
 
 """
     player_actionindex(game::POMG, i::Int, a)

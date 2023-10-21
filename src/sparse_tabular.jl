@@ -8,7 +8,7 @@ struct SparseTabularPOMG <: POMG{Int, Tuple{Int,Int}, Tuple{Int,Int}}
     discount::Float64
 end
 
-struct SparseTabularMG
+struct SparseTabularMG <: MG{Int, Tuple{Int,Int}}
     T::Matrix{SparseMatrixCSC{Float64, Int64}} # T[a1, a2][sp, s]
     R::Array{Float64, 3} # R[s,a1,a2]
     isterminal::SparseVector{Bool, Int}
@@ -18,7 +18,7 @@ end
 
 SparseTabularMG(game::SparseTabularMG) = game
 
-function SparseTabularMG(game::POMG)
+function SparseTabularMG(game::Game)
     S = states(game)
     A = actions(game) # (A1, A2)
 
@@ -134,9 +134,9 @@ end
 
 const SparseTabularGame = Union{SparseTabularPOMG, SparseTabularMG}
 
-POMDPTools.ordered_states(game::SparseTabularPOMG) = axes(game.R, 1)
+POMDPTools.ordered_states(game::SparseTabularGame) = axes(game.R, 1)
 POMDPs.states(game::SparseTabularGame) = axes(game.R, 1)
-POMDPTools.ordered_actions(game::SparseTabularPOMG) = axes(game.T)
+POMDPTools.ordered_actions(game::SparseTabularGame) = axes(game.T)
 POMDPs.actions(game::SparseTabularGame) = axes(game.T)
 POMDPTools.ordered_observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
 POMDPs.observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
@@ -144,6 +144,22 @@ POMDPs.observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
 POMDPs.discount(game::SparseTabularGame) = game.discount
 POMDPs.initialstate(game::SparseTabularGame) = game.initialstate
 POMDPs.isterminal(game::SparseTabularGame, s::Int) = game.isterminal[s]
+
+function POMDPs.transition(game::SparseTabularGame, s::Int, a)
+    T_a = game.T[a...]
+    Tnz = nonzeros(T_a)
+    Trv = rowvals(T_a)
+    sp_idxs = nzrange(T_a, s)
+    sps = @view Trv[sp_idxs]
+    probs = @view Tnz[sp_idxs]
+    return SparseCat(sps, probs)
+end
+
+POMGs.player_observation(game::SparseTabularPOMG, i, a, sp) = SparseCat(
+    observations(game)[i], 
+    game.O[i][a...][sp,:]
+)
+
 
 n_states(game::SparseTabularGame) = length(states(game))
 n_actions(game::SparseTabularGame) = length.(actions(game))

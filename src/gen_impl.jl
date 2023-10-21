@@ -1,11 +1,11 @@
-POMDPs.gen(::POMG, s, a, rng) = NamedTuple()
+POMDPs.gen(::Game, s, a, rng) = NamedTuple()
 
-@generated function POMDPs.genout(v::DDNOut{symbols}, m::POMG, s, a, rng) where symbols
+@generated function POMDPs.genout(::DDNOut{symbols}, m::Game, s, a, rng) where symbols
 
     # use anything available from gen(m, s, a, rng)
     expr = quote
         x = gen(m, s, a, rng)
-        @assert x isa NamedTuple "gen(m::POMG, ...) must return a NamedTuple; got a $(typeof(x))"
+        @assert x isa NamedTuple "gen(m::Game, ...) must return a NamedTuple; got a $(typeof(x))"
     end
     
     # add gen for any other variables
@@ -42,6 +42,16 @@ function POMDPs.sorted_deppairs(::Type{<:POMG}, symbols)
                 :a => Symbol[],
                 :sp => [:s, :a],
                 :o => [:s, :a, :sp],
+                :r => [:s, :a, :sp, :o],
+                :info => Symbol[]
+               )
+    return POMDPs.sorted_deppairs(deps, symbols)
+end
+
+function POMDPs.sorted_deppairs(::Type{<:MG}, symbols)
+    deps = Dict(:s => Symbol[],
+                :a => Symbol[],
+                :sp => [:s, :a],
                 :r => [:s, :a, :sp, :o],
                 :info => Symbol[]
                )

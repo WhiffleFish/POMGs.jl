@@ -1,7 +1,6 @@
 module POMGs
 # Maybe change to POSGs.jl ???
 
-using ProgressMeter
 using Random
 using POMDPs
 import POMDPTools
