@@ -142,7 +142,7 @@ POMDPTools.ordered_observations(game::SparseTabularPOMG) = axes(first(game.O), 2
 POMDPs.observations(game::SparseTabularPOMG) = axes(first(game.O), 2)
 
 POMDPs.discount(game::SparseTabularGame) = game.discount
-POMDPs.initialstate(game::SparseTabularGame) = game.initialstate
+POMDPs.initialstate(game::SparseTabularGame) = SparseCat(states(game), game.initialstate)
 POMDPs.isterminal(game::SparseTabularGame, s::Int) = game.isterminal[s]
 
 function POMDPs.transition(game::SparseTabularGame, s::Int, a)
