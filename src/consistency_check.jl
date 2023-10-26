@@ -4,7 +4,12 @@ function POMDPTools.has_consistent_distributions(m::POMG; atol=0.0)
         POMDPTools.has_consistent_observation_distributions(m; atol)
 end
 
-function POMDPTools.has_consistent_transition_distributions(game::POMG; atol=0.0)
+function POMDPTools.has_consistent_distributions(m::MG; atol=0.0)
+    return POMDPTools.has_consistent_initial_distribution(m; atol) &&
+        POMDPTools.has_consistent_transition_distributions(m; atol)
+end
+
+function POMDPTools.has_consistent_transition_distributions(game::Game; atol=0.0)
     S = states(game)
     A1, A2 = actions(game)
     ok = true
@@ -83,7 +88,7 @@ function POMDPTools.has_consistent_observation_distributions(game::POMG; atol=0.
     return ok
 end
 
-function POMDPTools.has_consistent_initial_distribution(game::POMG; atol=0.0)
+function POMDPTools.has_consistent_initial_distribution(game::Game; atol=0.0)
     ok = true
     d = initialstate(game)
     sup = Set(support(d))
