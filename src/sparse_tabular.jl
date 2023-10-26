@@ -49,7 +49,7 @@ SparseTabularPOMG(game::SparseTabularPOMG) = game
 function _tabular_transitions(game::POMG, S, A, terminal)
     ns = length(S)
     na1, na2 = length.(A)
-    T = fill(zeros(ns,ns), na1, na2)
+    T = [zeros(ns,ns) for i ∈ 1:na1, j ∈ 1:na2]
     for idx ∈ CartesianIndices(T)
         a_idxs = Tuple(idx)
         a = first(A)[first(a_idxs)], last(A)[last(a_idxs)]
