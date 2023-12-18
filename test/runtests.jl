@@ -1,6 +1,7 @@
 using POMGs
 using POMGs.Games
 using POMDPTools
+using POMDPs
 using Test
 
 @testset "generative" begin
@@ -20,6 +21,8 @@ using Test
 end
 
 include("games.jl")
+
+include("distributions.jl")
 
 @testset "sparse tabular" begin
     tiger = CompetitiveTiger()
