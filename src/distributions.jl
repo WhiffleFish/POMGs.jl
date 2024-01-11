@@ -1,6 +1,6 @@
-struct ProductDistribution{D<:Tuple}
+struct ProductDistribution{D<:Union{Tuple, AbstractArray}}
     dists::D
-    ProductDistribution(t::Tuple) = new{typeof(t)}(t)
+    ProductDistribution(t::Union{Tuple,AbstractArray}) = new{typeof(t)}(t)
     ProductDistribution(args...) = new{typeof(args)}(args)
 end
 
