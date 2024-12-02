@@ -48,7 +48,7 @@ POMDPs.updater(game::Kuhn) = SingletonUpdater(game)
 
 player(::Kuhn, s) = any(iszero, s.cards) ? 0 : mod(length(s),2) + 1
 
-POMGs.initialstate(::Kuhn) = KuhnState(SA[0,0], @SVector(fill(NULL,3)))
+POMGs.initialstate(::Kuhn) = Deterministic(KuhnState(SA[0,0], @SVector(fill(NULL,3))))
 
 function POMGs.isterminal(::Kuhn, s::KuhnState)
     L = length(s)
@@ -92,11 +92,11 @@ function POMGs.actions(g::Kuhn, s::KuhnState)
 end
 
 function POMGs.transition(g::Kuhn, s::KuhnState, a) # not type stable... Union{Categorical, Deterministic}
-    L = length(s)
-    p = player(g, s)
     if iszero(p)
         return g.chance_states
     else
+        L = length(s)
+        p = player(g, s)
         return Deterministic(
             KuhnState(s.cards, setindex(s.action_hist, a[p], L+1))
         )

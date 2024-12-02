@@ -4,8 +4,7 @@ struct ProductDistribution{D<:Union{Tuple, AbstractArray}}
     ProductDistribution(args...) = new{typeof(args)}(args)
 end
 
-Base.iterate(d::ProductDistribution) = iterate(d.dists)
-Base.iterate(d::ProductDistribution, i) = iterate(d.dists, i)
+Base.iterate(d::ProductDistribution, args...) = iterate(d.dists, args...)
 Base.getindex(d::ProductDistribution, i) = getindex(d.dists, i)
 Base.length(d::ProductDistribution) = length(d.dists)
 
