@@ -71,9 +71,6 @@ function player_observation end
 player_observation(m::POMG, i::Int, s, a, sp) = player_observation(m, i, a, sp)
 player_observation(m::POMG, i::Int, a, sp) = player_observation(m, i, sp)
 
-
-function POMDPs.reward(::Game, s, a) end
-
 POMDPs.reward(p::Game, s, a, sp, o) = reward(p, s, a, sp)
 POMDPs.reward(p::Game, s, a, sp) = reward(p, s, a)
 POMDPs.reward(p::Game, s, a) = reward(p, s)
